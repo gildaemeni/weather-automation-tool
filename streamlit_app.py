@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import datetime
 
 API_KEY = "2c72c80c241e422dbc0163855251604"
 BASE_URL = "http://api.weatherapi.com/v1"
@@ -50,3 +51,29 @@ if city:
 
     else:
         st.error("Error: Unable to fetch weather data. Please try a different city.")
+
+    # Get yesterday's date
+    yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+
+    # Full API request url to get yesterday's weather data
+    past_endpoint = f"{BASE_URL}/history.json?key={API_KEY}&q={city}&dt={yesterday}"
+    past_response = requests.get(past_endpoint)  # Send a GET request to the API
+
+    # Check if the request was successful
+    if past_response.status_code == 200:
+        past_data = past_response.json()  # convert the response to JSON
+
+        # Extract yesterday's weather details
+        past_temperature = past_data['forecast']['forecastday'][0]['day']['avgtemp_f']
+
+        # Compare today's and yesterday's temperature
+        temperature_difference = round(temperature - past_temperature, 1)
+        
+        if temperature_difference > 0:
+            st.success(f"It's {temperature_difference}°F warmer today than yesterday!")
+        elif temperature_difference < 0:
+            st.warning(f"It's {abs(temperature_difference)}°F cooler today than yesterday.")
+        else:
+            st.info("The temperature is the same as yesterday.")
+    else:
+        st.error("Error: Unable to fetch yesterday's weather data. Please try again later.")
