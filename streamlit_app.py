@@ -1,8 +1,9 @@
 import streamlit as st
 import requests
 import datetime
+import os
 
-API_KEY = "2c72c80c241e422dbc0163855251604"
+API_KEY = os.getenv("WEATHER_API_KEY")
 BASE_URL = "http://api.weatherapi.com/v1"
 
 # Set the title of the Streamlit app
